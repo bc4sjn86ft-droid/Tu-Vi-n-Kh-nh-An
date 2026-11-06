@@ -1,0 +1,13 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+const browser=await chromium.launch({channel:'chromium',headless:true});
+try{const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://localhost:5173');await page.locator('canvas').waitFor();await page.waitForTimeout(500);
+assert.equal(await page.locator('.intro').count(),0);
+// Leaving an activity cancels it, rather than granting a reward.
+await page.locator('#activity-button').click();await page.keyboard.down('w');await page.waitForTimeout(250);await page.keyboard.up('w');await page.waitForTimeout(3100);assert.equal(await page.locator('#quest-total').innerText(),'0/12');
+await page.locator('[data-place="pond"]').click();for(let i=0;i<3;i++){await page.locator('#activity-button').click();if(i===0){await page.waitForTimeout(550);await page.screenshot({path:'/tmp/khanh-an-feeding.png'});}await page.waitForFunction(()=>!document.getElementById('activity-button').disabled);}
+assert.equal(await page.locator('#quest-total').innerText(),'3/12');assert.match(await page.locator('.quest-note').innerText(),/Mầm thiện/);await page.reload();await page.locator('canvas').waitFor();assert.equal(await page.locator('#quest-total').innerText(),'3/12');
+for(let i=0;i<5;i++){await page.locator('#activity-button').click();await page.waitForFunction(()=>!document.getElementById('activity-button').disabled);}assert.match(await page.locator('.quest-note').innerText(),/Tâm an/);
+await page.locator('#enter').click();for(let i=0;i<3;i++){await page.locator('[data-action="bow"]').click();await page.waitForFunction(expected=>document.getElementById('quest-total').textContent===expected,`${9+i}/12`);}assert.equal(await page.locator('#quest-total').innerText(),'11/12');await page.screenshot({path:'/tmp/khanh-an-hall-dusk.png'});
+await page.locator('[data-place="incense"]').click();await page.locator('[data-action="incense"]').click();await page.waitForFunction(()=>document.getElementById('quest-total').textContent==='12/12');assert.equal(await page.locator('#quest-total').innerText(),'12/12');assert.match(await page.locator('.quest-note').innerText(),/Sen thanh tịnh/);await page.locator('[data-place="yard"]').click();await page.screenshot({path:'/tmp/khanh-an-sunset.png'});
+await page.setViewportSize({width:390,height:844});await page.screenshot({path:'/tmp/khanh-an-quests-mobile.png'});await page.locator('#quest-toggle').click();assert.equal(await page.locator('#quest-body').isVisible(),false);assert.deepEqual(errors,[]);console.log('Đạt: hủy cử chỉ, cho cá ăn, quét lá, lễ Phật, dâng nhang, ba mốc hào quang, lưu tiến độ, giao diện điện thoại.');}finally{await browser.close();}

@@ -1,0 +1,4 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {WORLD,inHall,floorHeight,canWalk,placeName} from '../src/world-layout.js';
+test('Khuôn viên, bậc thềm và khu vực nhiệm vụ thống nhất với sơ đồ',()=>{assert.ok(WORLD.hall.x>WORLD.pond.x);assert.ok(WORLD.residence.x<WORLD.pond.x);assert.ok(WORLD.quanAm.z<WORLD.pond.z);assert.equal(inHall(19,-7),true);assert.equal(inHall(0,-7),false);assert.equal(floorHeight(19,-7),3.93);assert.ok(floorHeight(19,27)>floorHeight(19,31));assert.equal(floorHeight(0,18),0);assert.equal(canWalk(0,-5),true);assert.equal(canWalk(3,-5,0),false);assert.equal(canWalk(3,2),true);assert.equal(canWalk(-25,-6,.36),true);assert.equal(placeName(0,-14),'Tượng Quan Âm');assert.equal(placeName(26,-24.8),'Khu phòng sư thầy');assert.equal(placeName(WORLD.tower.x,WORLD.tower.z+5),'Bảo tháp');});
